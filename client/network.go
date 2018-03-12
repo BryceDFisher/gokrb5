@@ -5,15 +5,17 @@ import (
 	"encoding/binary"
 	"errors"
 	"fmt"
-	"gopkg.in/jcmturner/dnsutils.v1"
-	"gopkg.in/jcmturner/gokrb5.v4/iana/errorcode"
-	"gopkg.in/jcmturner/gokrb5.v4/messages"
 	"io"
+	"log"
 	"math/rand"
 	"net"
 	"strconv"
 	"strings"
 	"time"
+
+	"gopkg.in/jcmturner/dnsutils.v1"
+	"gopkg.in/jcmturner/gokrb5.v4/iana/errorcode"
+	"gopkg.in/jcmturner/gokrb5.v4/messages"
 )
 
 func (cl *Client) resolveKDC(realm string, tcp bool) (int, map[int]string, error) {
@@ -136,6 +138,7 @@ func dialKDCUDP(count int, kdcs map[int]string) (conn *net.UDPConn, err error) {
 			err = fmt.Errorf("error resolving KDC address: %v", e)
 			return
 		}
+		log.Printf("Dialing udp: %s\n", udpAddr.String())
 		conn, err = net.DialUDP("udp", nil, udpAddr)
 		if err == nil {
 			conn.SetDeadline(time.Now().Add(time.Duration(5 * time.Second)))
@@ -155,6 +158,7 @@ func dialKDCTCP(count int, kdcs map[int]string) (conn *net.TCPConn, err error) {
 			err = fmt.Errorf("error resolving KDC address: %v", e)
 			return
 		}
+		log.Printf("Dialing tcp: %s\n", tcpAddr.String())
 		conn, err = net.DialTCP("tcp", nil, tcpAddr)
 		if err == nil {
 			conn.SetDeadline(time.Now().Add(time.Duration(5 * time.Second)))
